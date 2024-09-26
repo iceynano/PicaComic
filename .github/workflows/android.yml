@@ -1,0 +1,55 @@
+name: Build APKs
+
+on:
+  push:
+    branches:
+      - main  # 可以根据实际情况修改分支名
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        architecture: x64
+    - name: Build APK for arm64-v8a
+      run: flutter build apk --split-per-abi
+
+    - name: Upload arm64-v8a APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: arm64-v8a
+        path: build/app/outputs/flutter-apk/arm64/release/app-arm64-v8a-release.apk
+
+    - name: Build APK for armabi-v7a
+      run: flutter build apk --split-per-abi
+
+    - name: Upload armabi-v7a APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: armabi-v7a
+        path: build/app/outputs/flutter-apk/armv7/release/app-armeabi-v7a-release.apk
+
+    - name: Build APK for x86
+      run: flutter build apk --split-per-abi
+
+    - name: Upload x86 APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: x86
+        path: build/app/outputs/flutter-apk/x86/release/app-x86-release.apk
+
+    - name: Build APK for x86_64
+      run: flutter build apk --split-per-abi
+
+    - name: Upload x86_64 APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: x86_64
+        path: build/app/outputs/flutter-apk/x64/release/app-x86_64-release.apk
