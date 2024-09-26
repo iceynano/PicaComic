@@ -3,15 +3,15 @@ run-name: Build APKs
 on:
   workflow_dispatch: {}
 jobs:
-  build:
+  Build_Android:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Setup Flutter
-      uses: subosito/flutter-action@v2
+      uses: subosito/flutter-action@v4
       with:
         channel: 'stable'
         architecture: x64
@@ -19,7 +19,7 @@ jobs:
       run: flutter build apk --split-per-abi
 
     - name: Upload arm64-v8a APK
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: arm64-v8a
         path: build/app/outputs/flutter-apk/arm64/release/app-arm64-v8a-release.apk
@@ -28,7 +28,7 @@ jobs:
       run: flutter build apk --split-per-abi
 
     - name: Upload armabi-v7a APK
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: armabi-v7a
         path: build/app/outputs/flutter-apk/armv7/release/app-armeabi-v7a-release.apk
@@ -37,7 +37,7 @@ jobs:
       run: flutter build apk --split-per-abi
 
     - name: Upload x86 APK
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: x86
         path: build/app/outputs/flutter-apk/x86/release/app-x86-release.apk
@@ -46,7 +46,7 @@ jobs:
       run: flutter build apk --split-per-abi
 
     - name: Upload x86_64 APK
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: x86_64
         path: build/app/outputs/flutter-apk/x64/release/app-x86_64-release.apk
