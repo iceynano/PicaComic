@@ -22,10 +22,11 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
-
-def keystorePropertiesFile = rootProject.file("key.properties")
-def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+def defStoreFile = file("keystore.jks")
+def defStorePassword = localProperties.getProperty('storePassword')
+def defKeyAlias = localProperties.getProperty('keyAlias')
+def defKeyPassword = localProperties.getProperty('keyPassword')
+def isRelease = defStoreFile.exists() && defStorePassword != null && defKeyAlias != null && defKeyPassword != null
 
 android {
     compileSdk 34
@@ -63,17 +64,13 @@ android {
     }
 
     signingConfigs {
-        debug {
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-        }
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+        if (isRelease) {
+            release {
+                storeFile defStoreFile
+                storePassword defStorePassword
+                keyAlias defKeyAlias
+                keyPassword defKeyPassword
+            }
         }
     }
 
