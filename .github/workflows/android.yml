@@ -29,38 +29,53 @@ jobs:
           echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> android/local.properties
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/local.properties
         
-    - name: Build APK for arm64-v8a
+    - name: Build APKs
       run: flutter build apk --split-per-abi
 
-    - name: Upload arm64-v8a APK
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: arm64-v8a
-        path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+        name: apps
+        path: ./build/app/outputs/flutter-apk
+        retention-days: 1
+        overwrite: true
+        
+  upload-release:
+    if: ${{ !contains(github.ref, '+') }}
+    permissions: write-all
+    needs: [ Build_Android ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Build APK for armabi-v7a
-      run: flutter build apk --split-per-abi
+      - name: Download
+        uses: actions/download-artifact@v4
+        with:
+          path: ./dist/
+          pattern: apps
+          merge-multiple: true
 
-    - name: Upload armabi-v7a APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: armabi-v7a
-        path: build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-
-    - name: Build APK for x86
-      run: flutter build apk --split-per-abi
-
-    - name: Upload x86 APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: x86
-        path: build/app/outputs/flutter-apk/app-x86-release.apk
-
-    - name: Build APK for x86_64
-      run: flutter build apk --split-per-abi
-
-    - name: Upload x86_64 APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: x86_64
-        path: build/app/outputs/flutter-apk/app-x86_64-release.apk
+      - name: Rename
+        run: |
+          cd ./dist
+          for file in *.apk; do
+            new_name=$(echo $file | sed 's/app-\(.*\)-release\.apk/\1.apk/')
+            mv "$file" "$new_name"
+          done
+          cd ..
+          
+      - name: Pre Release
+        run: |
+          apt install jq
+          curl -s https://api.github.com/repos/wgh136/PicaComic/releases/latest | jq -r '.body' > release.md
+          r_tag_name=$(curl -s https://api.github.com/repos/wgh136/PicaComic/releases/latest | jq -r '.tag_name')
+  
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./dist/*
+          tag_name: r_tag_name
+          body_path: './release.md'
