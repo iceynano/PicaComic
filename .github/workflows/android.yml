@@ -1,10 +1,7 @@
 name: Build APKs
-
+run-name: Build APKs
 on:
-  push:
-    branches:
-      - main  # 可以根据实际情况修改分支名
-
+  workflow_dispatch: {}
 jobs:
   build:
     runs-on: ubuntu-latest
