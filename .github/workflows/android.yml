@@ -98,7 +98,6 @@ jobs:
         run: |
           cd ./dist
           version=${r_tag_name:1}
-          mv artifact-*/* .
           for file in *.apk; do
               if [[ $file =~ ^app-(.*)-release\.apk$ ]]; then
                   new_name="PicaComic-$version-${BASH_REMATCH[1]}.apk"
@@ -106,7 +105,6 @@ jobs:
               fi
           done
           mv app-release.apk "PicaComic-$version-universal.apk"
-          rm -d artifact-*
           cd ..
             
       - name: Release
