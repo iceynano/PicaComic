@@ -72,7 +72,7 @@ jobs:
           
       - name: Pre Release
         run: |
-          apt install jq
+          sudo apt install jq
           curl -s https://api.github.com/repos/wgh136/PicaComic/releases/latest | jq -r '.body' > release.md
           r_tag_name=$(curl -s https://api.github.com/repos/wgh136/PicaComic/releases/latest | jq -r '.tag_name')
   
