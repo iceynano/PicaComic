@@ -23,15 +23,17 @@ jobs:
           name_is_regexp: true
 
       - name: Pre Release
+        id: pre-release
         run: |
           sudo apt install jq
           curl -s https://api.github.com/repos/wgh136/PicaComic/releases/latest | jq -r '.body' > release.md
           r_tag_name=$(curl -s https://api.github.com/repos/wgh136/PicaComic/releases/latest | jq -r '.tag_name')
-          echo $r_tag_name
+          echo "::set-output name=r_tag_name::$r_tag_name"
 
       - name: Rename
         run: |
           cd ./dist
+          r_tag_name=${{ steps.pre-release.outputs.r_tag_name }}
           version=${r_tag_name:1}
           echo $version
           mv artifact-*/* .
@@ -42,5 +44,6 @@ jobs:
               fi
           done
           mv app-release.apk "PicaComic-$version-universal.apk"
+          rm -d artifact-*
           ls
           cd ..
