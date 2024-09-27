@@ -32,13 +32,29 @@ jobs:
     - name: Build APKs
       run: flutter build apk --split-per-abi
 
-    - name: Upload
+    - name: Upload arm64-v8a APK
       uses: actions/upload-artifact@v4
       with:
-        name: apps
-        path: ./build/app/outputs/flutter-apk
-        retention-days: 1
-        overwrite: true
+        name: artifact-arm64-v8a
+        path: ./build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+
+    - name: Upload armabi-v7a APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifact-armabi-v7a
+        path: ./build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+
+    - name: Upload x86_64 APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifact-x86_64
+        path: ./build/app/outputs/flutter-apk/app-x86_64-release.apk
+
+    - name: Upload universal APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifact-universal
+        path: ./build/app/outputs/flutter-apk/app-release.apk
         
   upload-release:
     if: ${{ !contains(github.ref, '+') }}
@@ -55,30 +71,32 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ./dist/
-          pattern: apps
+          pattern: artifact-*
           merge-multiple: true
 
-      - name: Rename
-        run: |
-          cd ./dist
-          for file in *.apk; do
-            if [[ $file =~ ^app-(.*)-release\.apk$ ]]; then
-              new_name="${BASH_REMATCH[1]}.apk"
-              mv "$file" "$new_name"
-            fi
-          done
-          mv app-release.apk universal.apk
-          cd ..
-          
       - name: Pre Release
         run: |
           sudo apt install jq
           curl -s https://api.github.com/repos/wgh136/PicaComic/releases/latest | jq -r '.body' > release.md
           r_tag_name=$(curl -s https://api.github.com/repos/wgh136/PicaComic/releases/latest | jq -r '.tag_name')
-  
+
+      - name: Rename
+        run: |
+          cp ./build/app/outputs/flutter-apk/*.sha1 ./dist
+          cd ./dist
+          version=${r_tag_name:1}
+          for file in *.apk; do
+              if [[ $file =~ ^app-(.*)-release\.apk(.*)$ ]]; then
+                  new_name="PicaComic-$version-${BASH_REMATCH[1]}.apk${BASH_REMATCH[2]}"
+                  mv "$file" "$new_name"
+              fi
+          done
+          mv app-release.apk "PicaComic-$version-universal.apk"
+          cd ..
+            
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: ./dist/*
-          tag_name: r_tag_name
+          tag_name: $r_tag_name
           body_path: './release.md'
