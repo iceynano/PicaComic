@@ -62,7 +62,7 @@ jobs:
         run: |
           cd ./dist
           for file in *.apk; do
-            new_name=$(echo $file | sed 's/app-\(.+\)-release\.apk/\1.apk/')
+            new_name=$(echo $file | sed 's/app-\(.\+\)-release\.apk/\1.apk/')
             mv "$file" "$new_name"
           done
           mv app-release.apk universal.apk
