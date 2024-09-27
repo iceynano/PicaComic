@@ -13,13 +13,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download
-        uses: actions/download-artifact@v4
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v6
         with:
           run-id: 11064495916
           path: ./dist/
-          pattern: artifact-*
-          merge-multiple: true
+          name: artifact-*
 
       - name: Pre Release
         run: |
