@@ -111,5 +111,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ./dist/*
-          tag_name: $r_tag_name
+          tag_name: ${{ env.r_tag_name }}
           body_path: './release.md'
