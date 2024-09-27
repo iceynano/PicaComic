@@ -17,7 +17,7 @@ jobs:
         id: download-artifact
         uses: dawidd6/action-download-artifact@v6
         with:
-          run-id: 11064495916
+          run_id: 11064495916
           path: ./dist/
           name: artifact-*
 
