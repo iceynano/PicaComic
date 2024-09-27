@@ -55,7 +55,19 @@ jobs:
       with:
         name: artifact-universal
         path: ./build/app/outputs/flutter-apk/app-release.apk
-        
+
+    - name: collect sha1sum
+      run: |
+        cd ./build/app/outputs/flutter-apk
+        for file in *.sha1; do echo -n "${file%.sha1} " >> sha1sum.txt; cat $file >> sha1sum.txt; done
+        cp sha1sum.txt $GITHUB_WORKSPACE/
+
+    - name: Upload sha1sum
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifact-sha1sum
+        path: ./sha1sum.txt
+      
   upload-release:
     if: ${{ !contains(github.ref, '+') }}
     permissions: write-all
@@ -82,12 +94,11 @@ jobs:
 
       - name: Rename
         run: |
-          cp ./build/app/outputs/flutter-apk/*.sha1 ./dist
           cd ./dist
           version=${r_tag_name:1}
           for file in *.apk; do
-              if [[ $file =~ ^app-(.*)-release\.apk(.*)$ ]]; then
-                  new_name="PicaComic-$version-${BASH_REMATCH[1]}.apk${BASH_REMATCH[2]}"
+              if [[ $file =~ ^app-(.*)-release\.apk$ ]]; then
+                  new_name="PicaComic-$version-${BASH_REMATCH[1]}.apk"
                   mv "$file" "$new_name"
               fi
           done
