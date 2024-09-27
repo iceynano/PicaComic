@@ -1,5 +1,5 @@
-name: Build APKs
-run-name: Build APKs
+name: Release test
+run-name: Release test
 on:
   workflow_dispatch: {}
 jobs:
