@@ -19,7 +19,8 @@ jobs:
         with:
           run_id: 11064495916
           path: ./dist/
-          name: artifact-*
+          name: artifact-.*
+          name_is_regexp: true
 
       - name: Pre Release
         run: |
