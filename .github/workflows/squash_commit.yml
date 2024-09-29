@@ -1,0 +1,46 @@
+name: Squash Commits
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to squash commits in'
+        required: true
+        default: 'main'
+      commit1:
+        description: 'Start commit (hash)'
+        required: true
+      commit2:
+        description: 'End commit (hash)'
+        required: true
+
+jobs:
+  squash:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository and pull the full history
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0  # Pull the entire commit history
+
+      # Step 2: Rebase interactively and squash commits
+      - name: Squash commits
+        run: |
+          git config --global user.email "your-email@example.com"
+          git config --global user.name "your-name"
+          # Start interactive rebase from commit1 to commit2
+          git rebase -i ${{ github.event.inputs.commit1 }}^ --onto ${{ github.event.inputs.commit1 }}
+          
+          # Modify the pick -> squash interactively in rebase-todo file
+          sed -i '2,$ s/^pick/squash/' .git/rebase-merge/git-rebase-todo
+
+          # Continue the rebase operation
+          git rebase --continue
+
+      # Step 3: Force push the changes back to the branch
+      - name: Push changes
+        run: |
+          git push origin +HEAD:${{ github.event.inputs.branch }} --force
